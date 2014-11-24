@@ -44,7 +44,7 @@ const pkgdef :Spk.PackageDefinition = (
 
   fileList = "sandstorm-files.list",
 
-  alwaysInclude = []
+  alwaysInclude = ["usr/bin/node", "log"]
 
 );
 
