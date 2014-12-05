@@ -37,7 +37,7 @@ class User < ActiveRecord::Base
   validates :password, :presence => true, :on => :create
 
   validates :username,
-    :format => { :with => /\A[A-Za-z0-9][A-Za-z0-9_-]{0,24}\Z/ },
+    :format => { :with => /\A[A-Za-z0-9][A-Za-z0-9_-]{0,32}\Z/ },
     :uniqueness => { :case_sensitive => false }
 
   validates_each :username do |record,attr,value|

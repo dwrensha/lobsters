@@ -8,11 +8,19 @@ class ApplicationController < ActionController::Base
   TAG_FILTER_COOKIE = :tag_filters
 
   def authenticate_user
-    if session[:u] &&
-    (user = User.where(:session_token => session[:u].to_s).first) &&
-    user.is_active?
+    user_id = request.env["HTTP_X_SANDSTORM_USER_ID"].to_s
+    Rails.logger.error ("authing: " + user_id)
+    user = User.where(:username => user_id).first
+    if user
       @user = user
       Rails.logger.info "  Logged in as user #{@user.id} (#{@user.username})"
+    else
+      Rails.logger.error( " NO USER")
+      user = User.new(:username => user_id, :email => "david@example.com", :password => "xyzzy", :password_confirmation => "xyzzy")
+      user.is_admin = true
+      user.is_moderator = true
+      user.save
+      @user = user
     end
 
     true
