@@ -16,10 +16,26 @@ class ApplicationController < ActionController::Base
     else
       Rails.logger.info " Creating new user #{user_id}"
       user = User.new(:username => user_id, :email => user_id + "@example.com", :password => "xyzzy", :password_confirmation => "xyzzy")
-      user.is_admin = true
-      user.is_moderator = true
       user.save
       @user = user
+    end
+
+    permissions = request.env["HTTP_X_SANDSTORM_PERMISSIONS"].to_s
+    permission_list = permissions.split(',')
+
+    needs_resave = false
+
+    if permission_list.include? 'admin'
+      user.is_admin = true
+      needs_resave = true
+    end
+    if permission_list.include? 'admin'
+      user.is_moderator = true
+      needs_resave = true
+    end
+
+    if needs_resave
+      user.save
     end
 
     true
