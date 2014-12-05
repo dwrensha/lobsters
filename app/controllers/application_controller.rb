@@ -9,7 +9,6 @@ class ApplicationController < ActionController::Base
 
   def authenticate_user
     user_id = request.env["HTTP_X_SANDSTORM_USER_ID"].to_s
-    Rails.logger.error ("authing: " + user_id)
     user = User.where(:username => user_id).first
     if user
       @user = user
