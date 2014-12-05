@@ -14,8 +14,8 @@ class ApplicationController < ActionController::Base
       @user = user
       Rails.logger.info "  Logged in as user #{@user.id} (#{@user.username})"
     else
-      Rails.logger.error( " NO USER")
-      user = User.new(:username => user_id, :email => "david@example.com", :password => "xyzzy", :password_confirmation => "xyzzy")
+      Rails.logger.info " Creating new user #{user_id}"
+      user = User.new(:username => user_id, :email => user_id + "@example.com", :password => "xyzzy", :password_confirmation => "xyzzy")
       user.is_admin = true
       user.is_moderator = true
       user.save
