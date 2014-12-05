@@ -35,7 +35,7 @@ const pkgdef :Spk.PackageDefinition = (
     searchPath = [
       ( sourcePath = "." ),  # Search this directory first.
       ( sourcePath = "/",    # Then search the system root directory.
-        hidePaths = [ "home", "proc", "sys",
+        hidePaths = [ "home", "proc", "sys", "lib",
                       "etc/passwd", "etc/hosts", "etc/host.conf",
                       "etc/nsswitch.conf", "etc/resolv.conf" ]
       )
