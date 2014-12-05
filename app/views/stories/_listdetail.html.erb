@@ -53,13 +53,13 @@ class="story <%= story.vote == 1 ? "upvoted" : "" %> <%= story.vote == -1 ?
     <% end %>
     <div class="byline">
       <% if story.previewing %>
-        by <a><%= story.user.username %></a>
+        by <a><%= story.user.display_name %></a>
         just now
       <% else %>
         by <a href="/u/<%= story.user.username %>"
         <% if story.user.is_new? %>
           class="new_user"
-        <% end %>><%= story.user.username %></a>
+        <% end %>><%= story.user.display_name %></a>
 
         <%= raw(time_ago_in_words_label(story.created_at).gsub(/^about /, ""))
           %> ago

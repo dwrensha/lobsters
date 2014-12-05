@@ -9,13 +9,14 @@ class ApplicationController < ActionController::Base
 
   def authenticate_user
     user_id = request.env["HTTP_X_SANDSTORM_USER_ID"].to_s
+    user_display_name = request.env["HTTP_X_SANDSTORM_USERNAME"].to_s
     user = User.where(:username => user_id).first
     if user
       @user = user
       Rails.logger.info "  Logged in as user #{@user.id} (#{@user.username})"
     else
-      Rails.logger.info " Creating new user #{user_id}"
-      user = User.new(:username => user_id, :email => user_id + "@example.com", :password => "xyzzy", :password_confirmation => "xyzzy")
+      Rails.logger.info " Creating new user #{user_id} #{user_display_name}"
+      user = User.new(:username => user_id, :email => user_id + "@example.com", :password => "xyzzy", :password_confirmation => "xyzzy", :display_name => user_display_name)
       user.save
       @user = user
     end

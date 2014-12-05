@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141114184921) do
+ActiveRecord::Schema.define(version: 20141205215110) do
 
   create_table "comments", force: true do |t|
     t.datetime "created_at",                                                                    null: false
@@ -178,6 +178,7 @@ ActiveRecord::Schema.define(version: 20141114184921) do
     t.string   "banned_reason",        limit: 200
     t.datetime "deleted_at"
     t.string   "pushover_sound"
+    t.string   "display_name"
   end
 
   add_index "users", ["mailing_list_mode"], name: "mailing_list_enabled", using: :btree

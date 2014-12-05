@@ -80,7 +80,7 @@
           <% end %>
 
           <a href="/settings" <%= @cur_url == "/settings" ?
-            raw("class=\"cur_url\"") : "" %>><%= @user.username %>
+            raw("class=\"cur_url\"") : "" %>><%= @user.display_name %>
             (<%= @user.karma %>)</a>
 
         <% else %>
