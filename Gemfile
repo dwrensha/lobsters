@@ -2,9 +2,9 @@ source "https://rubygems.org"
 
 gem "rails", "4.0.8"
 
-gem "unicorn"
+#gem "unicorn"
 
-gem "mysql2", ">= 0.3.14"
+#gem "mysql2", ">= 0.3.14"
 
 # uncomment to use PostgreSQL
 # gem "pg"
@@ -12,7 +12,9 @@ gem "mysql2", ">= 0.3.14"
 # NOTE: If you use PostgreSQL, you must still leave enabled the above mysql2
 # gem for Sphinx full text search to function.
 
-gem "thinking-sphinx", "~> 3.0.6"
+#gem "thinking-sphinx", "~> 3.0.6"
+
+gem "sqlite3"
 
 gem "uglifier", ">= 1.3.0"
 gem "jquery-rails"
@@ -35,6 +37,5 @@ gem "mail"
 group :test, :development do
   gem "rspec-rails", "~> 2.6"
   gem "machinist"
-  gem "sqlite3"
   gem "faker"
 end
