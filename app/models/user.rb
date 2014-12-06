@@ -29,12 +29,12 @@ class User < ActiveRecord::Base
     :source => :story
   has_many :hats
 
-  has_secure_password
+  #has_secure_password
 
   validates :email, :format => { :with => /\A[^@ ]+@[^@ ]+\.[^@ ]+\Z/ },
     :uniqueness => { :case_sensitive => false }
 
-  validates :password, :presence => true, :on => :create
+  #validates :password, :presence => true, :on => :create
 
   validates :username,
     :format => { :with => /\A[A-Za-z0-9][A-Za-z0-9_-]{0,32}\Z/ },
