@@ -44,7 +44,7 @@ const pkgdef :Spk.PackageDefinition = (
 
   fileList = "sandstorm-files.list",
 
-  alwaysInclude = ["usr/bin/node", "log", "app", "config"],
+  alwaysInclude = ["usr/bin/node", "app", "config"],
 
   bridgeConfig = (
     viewInfo = (
