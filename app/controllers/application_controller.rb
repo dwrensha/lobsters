@@ -8,7 +8,11 @@ class ApplicationController < ActionController::Base
   TAG_FILTER_COOKIE = :tag_filters
 
   def authenticate_user
-    user_id = (request.env["HTTP_X_SANDSTORM_USER_ID"].to_s).encode(Encoding::UTF_8)
+    raw_sandstorm_user_id = request.env["HTTP_X_SANDSTORM_USER_ID"]
+    if !raw_sandstorm_user_id
+      return true
+    end
+    user_id = (raw_sandstorm_user_id.to_s).encode(Encoding::UTF_8)
     user_display_name = URI.unescape(request.env["HTTP_X_SANDSTORM_USERNAME"].to_s).force_encoding(Encoding::UTF_8)
     user = User.where(:username => user_id).first
     if user
