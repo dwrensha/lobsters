@@ -8,12 +8,12 @@ class ApplicationController < ActionController::Base
   TAG_FILTER_COOKIE = :tag_filters
 
   def authenticate_user
-    user_id = request.env["HTTP_X_SANDSTORM_USER_ID"].to_s
-    user_display_name = request.env["HTTP_X_SANDSTORM_USERNAME"].to_s
+    user_id = (request.env["HTTP_X_SANDSTORM_USER_ID"].to_s).encode(Encoding::UTF_8)
+    user_display_name = URI.unescape(request.env["HTTP_X_SANDSTORM_USERNAME"].to_s).force_encoding(Encoding::UTF_8)
     user = User.where(:username => user_id).first
     if user
       @user = user
-      Rails.logger.info "  Logged in as user #{@user.id} (#{@user.username})"
+      Rails.logger.info "  Logged in as user #{@user.id} : #{@user.username} (#{@user.display_name})"
     else
       Rails.logger.info " Creating new user #{user_id} #{user_display_name}"
       user = User.new(:username => user_id, :email => user_id + "@example.com", :display_name => user_display_name)
