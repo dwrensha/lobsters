@@ -16,11 +16,11 @@ gem "rails", "4.0.8"
 
 gem "sqlite3"
 
-gem "uglifier", ">= 1.3.0"
+#gem "uglifier", ">= 1.3.0"
 gem "jquery-rails"
 gem "dynamic_form"
 
-gem "exception_notification"
+#gem "exception_notification"
 
 #gem "bcrypt-ruby", "~> 3.1.2"
 
@@ -29,10 +29,10 @@ gem "htmlentities"
 gem "rdiscount"
 
 # for twitter-posting bot
-gem "oauth"
+#gem "oauth"
 
 # for parsing incoming mail
-gem "mail"
+#gem "mail"
 
 group :test, :development do
   gem "rspec-rails", "~> 2.6"
