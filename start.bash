@@ -1,10 +1,8 @@
 set -x
 
-export RBENV_ROOT=/usr/local/share/rbenv
-export PATH="$RBENV_ROOT/bin:$PATH"
-eval "$(rbenv init -)"
+export PATH="/usr/local/share/rbenv/versions/1.9.3-p429/bin:$PATH"
 
-RAILS_ENV=production rake db:schema:load populate_tags
+RAILS_ENV=production bundle exec rake db:schema:load populate_tags
 
-rails server -p 10000 -e production
+./bin/rails server -p 10000 -e production
 

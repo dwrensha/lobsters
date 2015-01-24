@@ -36,6 +36,7 @@ class Story < ActiveRecord::Base
 
   before_validation :assign_short_id_and_upvote,
     :on => :create
+  before_create :assign_initial_hotness
   before_save :log_moderation
   after_create :mark_submitter, :record_initial_upvote
   after_save :update_merged_into_story_comments
@@ -126,22 +127,29 @@ class Story < ActiveRecord::Base
     h
   end
 
+  def assign_initial_hotness
+    self.hotness = self.calculated_hotness
+  end
+
   def assign_short_id_and_upvote
     self.short_id = ShortId.new(self.class).generate
     self.upvotes = 1
   end
 
   def calculated_hotness
-    base = 10
+    base = 0
     self.tags.select{|t| t.hotness_mod != 0 }.each do |t|
-      base -= t.hotness_mod
+      base += t.hotness_mod
     end
 
-    # prevent the submitter's own comments from affecting the score
-    ccount = self.comments.where("user_id != ?", self.user_id).count
+    # give a story's comment votes some weight, but ignore the story
+    # submitter's own comments
+    cpoints = self.comments.where("user_id <> ?", self.user_id).
+      select(:upvotes, :downvotes).map{|c| c.upvotes + 1 - c.downvotes }.
+      inject(&:+).to_i
 
     # don't immediately kill stories at 0 by bumping up score by one
-    order = Math.log([ (score + 1).abs + ccount, 1 ].max, base)
+    order = Math.log([ (score + 1).abs + cpoints, 1 ].max, 10)
     if score > 0
       sign = 1
     elsif score < 0
@@ -151,9 +159,10 @@ class Story < ActiveRecord::Base
     end
 
     # TODO: as the site grows, shrink this down to 12 or so.
-    window = 60 * 60 * 24
+    window = 60 * 60 * 48
 
-    return -((order * sign) + (self.created_at.to_f / window)).round(7)
+    return -((order * sign) + base +
+      ((self.created_at || Time.now).to_f / window)).round(7)
   end
 
   def can_be_seen_by_user?(user)
@@ -185,6 +194,10 @@ class Story < ActiveRecord::Base
         "tag.  If no tags apply to your content, it probably doesn't " <<
         "belong here.")
     end
+  end
+
+  def comments_path
+    "#{short_id_path}/#{self.title_as_url}"
   end
 
   def comments_url
@@ -288,6 +301,14 @@ class Story < ActiveRecord::Base
     self.created_at >= RECENT_DAYS.days.ago
   end
 
+  def is_unavailable
+    self.unavailable_at != nil
+  end
+  def is_unavailable=(what)
+    self.unavailable_at = (what.to_i == 1 && !self.is_unavailable ?
+      Time.now : nil)
+  end
+
   def is_undeletable_by_user?(user)
     if user && user.is_moderator?
       return true
@@ -304,6 +325,11 @@ class Story < ActiveRecord::Base
     end
 
     all_changes = self.changes.merge(self.tagging_changes)
+    all_changes.delete("unavailable_at")
+
+    if !all_changes.any?
+      return
+    end
 
     m = Moderation.new
     m.moderator_user_id = self.editor.try(:id)
@@ -367,12 +393,20 @@ class Story < ActiveRecord::Base
       self.user_id, nil, false)
   end
 
+  def score
+    upvotes - downvotes
+  end
+
+  def short_id_path
+    Rails.application.routes.url_helpers.root_path + "s/#{self.short_id}"
+  end
+
   def short_id_url
     "/s/#{self.short_id}"
   end
 
-  def score
-    upvotes - downvotes
+  def sorted_taggings
+    self.taggings.sort_by{|t| t.tag.tag }.sort_by{|t| t.tag.is_media?? -1 : 0 }
   end
 
   def tagging_changes
@@ -430,6 +464,14 @@ class Story < ActiveRecord::Base
     self.short_id
   end
 
+  def update_availability
+    if self.is_unavailable && !self.unavailable_at
+      self.unavailable_at = Time.now
+    elsif self.unavailable_at && !self.is_unavailable
+      self.unavailable_at = nil
+    end
+  end
+
   def update_comments_count!
     comments = self.merged_comments.arrange_for_user(nil)
 
@@ -467,6 +509,10 @@ class Story < ActiveRecord::Base
     else
       false
     end
+  end
+
+  def url_or_comments_path
+    self.url.blank? ? self.comments_path : self.url
   end
 
   def url_or_comments_url

@@ -4,7 +4,7 @@ require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
-Bundler.require(:default, Rails.env)
+Bundler.require(*Rails.groups)
 
 module Lobsters
   class Application < Rails::Application
@@ -22,20 +22,11 @@ module Lobsters
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
-    config.i18n.enforce_available_locales = true
-
-    # Future Rails version will disable implicit joins, so we'll be prepared.
-    config.active_record.disable_implicit_join_references = true
 
     # Raise an exception when using mass assignment with unpermitted attributes
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     config.cache_store = :file_store, "#{config.root}/tmp/cache/"
-
-    config.after_initialize do
-      Rails.application.routes.default_url_options[:host] =
-        Rails.application.domain
-    end
   end
 end
 
@@ -44,8 +35,8 @@ silence_warnings do
   ActionDispatch::ParamsParser::DEFAULT_PARSERS = {}
 end
 
-# define site name and domain to be used globally, can be overridden in
-# config/initializers/production.rb
+# define site name and domain to be used globally, should be overridden in a
+# local file such as config/initializers/production.rb
 class << Rails.application
   def allow_invitation_requests?
     true
@@ -59,9 +50,22 @@ class << Rails.application
     "Example News"
   end
 
+  def root_url
+    Rails.application.routes.url_helpers.root_url({
+      :host => Rails.application.domain,
+      :protocol => Rails.application.ssl? ? "https" : "http",
+    })
+  end
+
   # used as mailing list prefix and countinual prefix, cannot have spaces
   def shortname
     name.downcase.gsub(/[^a-z]/, "")
+  end
+
+  # whether absolute URLs should include https (does not require that
+  # config.force_ssl be on)
+  def ssl?
+    true
   end
 end
 

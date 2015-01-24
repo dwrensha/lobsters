@@ -3,7 +3,7 @@
   <h2>Error: This story was already submitted <%=
     time_ago_in_words(f.object.already_posted_story.created_at) %> ago</h2>
   <p>
-  Please view the <a href="<%= f.object.already_posted_story.comments_url %>"
+  Please view the <a href="<%= f.object.already_posted_story.comments_path %>"
   target="_blank">previous discussion</a> for this story.
   </p>
   </div>
@@ -15,7 +15,7 @@
     time_ago_in_words(f.object.already_posted_story.created_at) %> ago, but may
     be submitted again.</h2>
   <p>
-  Please view the <a href="<%= f.object.already_posted_story.comments_url %>"
+  Please view the <a href="<%= f.object.already_posted_story.comments_path %>"
   target="_blank">previous discussion</a> for this story first.  If the content
   has changed or warrants new discussion, you may submit it again.
   </p>
@@ -49,12 +49,18 @@
     :style => "line-height: 2.3em;" %>
   <%= f.select "tags_a", options_for_select(
     Tag.all_with_filtered_counts_for(@user).map{|t|
-    [ "#{t.tag} - #{t.description}", t.tag, { "data-html" => raw("<strong>") +
-      t.tag + raw("</strong> - ") + t.description.to_s +
-      (t.filtered_count == 0 ? "" :
-      raw(" <em>") + "#{t.filtered_count} user" +
-      (t.filtered_count == 1 ? "" : "s") + " filtering" +
-      raw("</em>")) } ]}, f.object.tags_a), {}, { :multiple => true } %>
+      html = "<strong>#{h(t.tag)}</strong> - #{h(t.description.to_s)}"
+
+      if t.hotness_mod != 0
+        html << " (hotness mod #{t.hotness_mod > 0 ? "+" : ""}#{t.hotness_mod})"
+      end
+      if t.filtered_count > 0
+        html << " <em>#{t.filtered_count} user" <<
+          (t.filtered_count == 1 ? "" : "s") << " filtering</em>"
+      end
+
+      [ "#{t.tag} - #{t.description}", t.tag, { "data-html" => raw(html) } ]},
+    f.object.tags_a), {}, { :multiple => true } %>
   </div>
 
   <div class="boxline">
@@ -71,7 +77,7 @@
     <div id="story_guidelines" style="<%= show_guidelines?? "" :
     "display: none;" %>">
       <div style="float: right;">
-      <a href="javascript:window.location=%22<%= root_url %>stories/new?url=%22+encodeURIComponent(document.location)+%22&title=%22+encodeURIComponent(document.title)"
+      <a href="javascript:window.location=%22<%= Rails.application.root_url %>stories/new?url=%22+encodeURIComponent(document.location)+%22&title=%22+encodeURIComponent(document.title)"
       style="border: 1px solid #ddd; padding: 0.5em; background-color:
       #f8f8f8; line-height: 1.5em; margin-left: 1em;">Submit to
       <%= Rails.application.name %></a>

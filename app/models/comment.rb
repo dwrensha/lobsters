@@ -250,6 +250,8 @@ class Comment < ActiveRecord::Base
       "downvotes = COALESCE(downvotes, 0) + #{downvote.to_i}, " <<
       "confidence = '#{self.calculated_confidence}' WHERE id = " <<
       "#{self.id.to_i}")
+
+    self.story.recalculate_hotness!
   end
 
   def gone_text
@@ -323,6 +325,10 @@ class Comment < ActiveRecord::Base
     "comment.#{short_id}.#{created_at.to_i}@#{Rails.application.domain}"
   end
 
+  def path
+    self.story.comments_path + "/comments/#{self.short_id}#c_#{self.short_id}"
+  end
+
   def plaintext_comment
     # TODO: linkify then strip tags and convert entities back
     comment
@@ -337,6 +343,10 @@ class Comment < ActiveRecord::Base
 
   def score
     self.upvotes - self.downvotes
+  end
+
+  def short_id_path
+    self.story.short_id_path + "/_/comments/#{self.short_id}#c_#{self.short_id}"
   end
 
   def short_id_url
