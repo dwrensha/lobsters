@@ -9,5 +9,5 @@ development:
 
 production:
   <<: *default
-  database: /var/production.sqlite3
+  database: ../db/db.sqlite3
 
